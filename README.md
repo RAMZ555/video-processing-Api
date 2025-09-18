@@ -4,7 +4,7 @@
 
 **Professional video processing platform built with Spring Boot + FFmpeg for enterprise-grade video manipulation**
 
-[![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://openjdk.java.net/projects/jdk/17/)
+[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.java.net/projects/jdk/17/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-blue.svg)](https://www.mysql.com/)
 [![Redis](https://img.shields.io/badge/Redis-7.0-red.svg)](https://redis.io/)
