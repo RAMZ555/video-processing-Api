@@ -1,0 +1,84 @@
+# Remove version if using Docker Compose v2, optional
+# version: "3.8"
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: video-mysql
+    environment:
+      MYSQL_DATABASE: videoprocessing
+      MYSQL_ROOT_PASSWORD: Cristiano7
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - video-network
+
+  # Redis for async jobs
+  redis:
+    image: redis:7-alpine
+    container_name: video-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - video-network
+
+  # Main application
+  video-api:
+    build:
+      context: .            # make sure this is the folder with your Dockerfile
+      dockerfile: Dockerfile
+    container_name: video-processing-api
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_HOST=mysql
+      - DB_USERNAME=root
+      - DB_PASSWORD=Cristiano7
+      - REDIS_HOST=redis
+      - UPLOAD_DIR=/var/uploads
+      - OUTPUT_DIR=/var/outputs
+    volumes:
+      - ./uploads:/var/uploads
+      - ./outputs:/var/outputs
+      - ./fonts:/var/fonts
+      - ./logs:/var/log/video-processing
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - video-network
+    restart: unless-stopped
+
+  # Nginx reverse proxy (optional)
+  nginx:
+    image: nginx:alpine
+    container_name: video-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./outputs:/var/www/outputs:ro
+    depends_on:
+      - video-api
+    networks:
+      - video-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  video-network:
+    driver: bridge
+
+
